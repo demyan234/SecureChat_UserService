@@ -7,12 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
-        <PackageReference Include="NodaTime" Version="3.3.0" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Enums\" />
+      <Reference Include="NodaTime">
+        <HintPath>..\..\..\..\.nuget\packages\nodatime\3.3.0\lib\net8.0\NodaTime.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

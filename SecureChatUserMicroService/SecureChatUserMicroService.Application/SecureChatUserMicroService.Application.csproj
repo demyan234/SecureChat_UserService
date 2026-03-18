@@ -22,5 +22,10 @@
         <HintPath>..\..\..\..\.nuget\packages\nodatime\3.3.0\lib\net8.0\NodaTime.dll</HintPath>
       </Reference>
     </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\ContractualDtos\ContractualDtos.csproj" />
+      <ProjectReference Include="..\SecureChatUserMicroService.Domain\SecureChatUserMicroService.Domain.csproj" />
+    </ItemGroup>
 
 </Project>

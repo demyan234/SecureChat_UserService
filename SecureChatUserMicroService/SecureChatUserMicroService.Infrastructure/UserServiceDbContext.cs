@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SecureChatUserMicroService.Application.Common.Interfaces;
+using SecureChatUserMicroService.Domain.Entities;
+using SecureChatUserMicroService.Infrastructure.Configurations;
 
-namespace SecureChatUserMicroService.Infrastructure;
-
-public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
+namespace SecureChatUserMicroService.Infrastructure
+{
+    public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
     {
         private readonly string _defaultSchema = "UserMicroService";
 
@@ -12,7 +14,9 @@ public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
         {
         }
         
-        //public DbSet<UserProfileEntity> UserProfile { get; set; }
+        public DbSet<UserEntity> User { get; set; }
+        public DbSet<UserProfileEntity> UserProfile { get; set; }
+        public DbSet<BlockUserEntity> BlockUser { get; set; }
 
         public void Migrate()
         {
@@ -25,7 +29,9 @@ public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
 
             #region user
 
-            //modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new BlockUserConfiguration());
 
             #endregion
 
@@ -39,7 +45,6 @@ public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseNpgsql("Server=109.205.58.47;User Id=persProjectUser;Password=7FEpX_wl6g;Port=5432;Database=testDb;", npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
             optionsBuilder.UseNpgsql("Server=localhost;User Id=postgres;Password=0000;Port=5432;Database=postgres;", npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
         }
 
@@ -49,3 +54,4 @@ public sealed class UserServiceDbContext : DbContext, IUserServiceDbContext
                 .Options;
         }
     }
+}

@@ -1,41 +1,67 @@
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+using SecureChatUserMicroService.Application.Application.Extensions;
+using SecureChatUserMicroService.Infrastructure.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+/*TODO: вкл.на хостинге кэширование*/
+//builder.Services.AddResponseCaching();
+
+builder.Services
+    .AddCollectionInfrastructure(builder.Configuration)
+    .AddApplication();
+
+// Настройка CORS
+/*builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policyBuilder => policyBuilder
+            .WithOrigins(
+                ApiEndpointRoutes.BaseFrontUrl.TrimEnd('/')
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});*/
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "ChatMicroservice User API",
+        Version = "v1",
+        Description = "API для микросервиса чатов",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Demyan",
+            Email = "demyan@mail.ru"
+        }
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors("AllowBlazorClient");
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "ChatMicroservice User API v1");
+        options.RoutePrefix = "swagger";
+        options.DisplayRequestDuration();
+        options.EnableTryItOutByDefault();
+    });
+    app.UseHttpsRedirection();
 }
+else
+{
+    app.UseResponseCaching();
+}
+
+app.UseRouting();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
