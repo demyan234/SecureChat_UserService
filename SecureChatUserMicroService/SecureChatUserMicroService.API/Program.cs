@@ -47,7 +47,6 @@ else
 
 app.UseRouting();
 app.UseAuthorization();
-app.MapControllers();
 
 #region MAP_GRPC
 
