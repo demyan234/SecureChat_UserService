@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "UserService.Proto";
+
+// Сервис для управления пользователями
+service UserGrpcService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
+  rpc GetAllUser(GetAllUserRequest) returns (GetAllUserResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+}
+
+/*REQUEST*/
+// Запрос на создание пользователя
+message CreateUserRequest {
+  string Email = 1;
+  string Name = 2;
+  string Nickname = 3;
+  string AvatarUrl = 4;
+  optional string StatusQuote = 5;
+  string Status = 6;
+}
+
+// Получение пользователя
+message GetUserRequest {
+  string UserId = 1;
+}
+
+//Получение списка всех пользователей
+message GetAllUserRequest {
+  int32 Page = 1;
+  int32 pageSize = 2;
+  optional string Search = 3;
+  optional string SortBy = 4;
+  optional string SortDirection = 5;
+}
+
+// Обновление пользователя
+message UpdateUserRequest {
+  string Id = 1;
+  string Email = 2;
+  string Name = 3;
+  string Nickname = 4;
+  string AvatarUrl = 5;
+  optional string StatusQuote = 6;
+  bool IsBlocked = 7;
+  bool IsDeleted = 8;
+  optional string Status = 9;
+}
+
+// Удаление пользователя
+message DeleteUserRequest {
+  string UserId = 1;
+}
+
+/*RESPONSE*/
+// Ответ на создание пользователя
+message CreateUserResponse {
+  bool Success = 1;
+  string UserId = 2;
+  string ErrorMessage = 3;
+}
+
+// Вывод 1 пользователя
+message GetUserResponse {
+  bool Success = 1;
+  string ErrorMessage = 2;
+  UserInfo User = 3;
+}
+
+// Вывод всех пользователей
+message GetAllUserResponse {
+  bool Success = 1;
+  string ErrorMessage = 2;
+  repeated UserInfo Users = 3;
+  int32 Count = 4;
+}
+
+// Вывод измененного пользователя
+message UpdateUserResponse {
+  bool Success = 1;
+  string ErrorMessage = 2;
+}
+
+// Вывод удаленного пользователя
+message DeleteUserResponse {
+  bool Success = 1;
+  string ErrorMessage = 2;
+}
+
+//Информация о пользователях
+message UserInfo{
+  string Id = 1;
+  string Email = 2;
+  google.protobuf.Timestamp CreatedTime = 3;
+  google.protobuf.Timestamp LastUpdateTime = 4;
+  optional google.protobuf.Timestamp DeleteTime = 5;
+}

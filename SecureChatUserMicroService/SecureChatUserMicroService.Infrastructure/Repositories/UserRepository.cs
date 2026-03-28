@@ -163,6 +163,11 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
             }
         }
 
+        public Task<bool> GetByEmail(string email)
+        {
+            return _context.User.AnyAsync(u => u.Email == email);
+        }
+
         #endregion
 
 

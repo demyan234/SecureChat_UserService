@@ -39,5 +39,12 @@ namespace SecureChatUserMicroService.Application.Common.Interfaces.IRepository
         /// </summary>
         /// <param name="id">передаваемые параметры из запроса</param>
         Task<bool> SafeDelete(Guid id);
+
+        /// <summary>
+        /// Проверка на существование пользователя с таким Email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        Task<bool> GetByEmail(string email);
     }
 }

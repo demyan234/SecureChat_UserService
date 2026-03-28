@@ -52,8 +52,8 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
         {
             try
             {
-                var user = await _context.BlockUser.FindAsync(id);
-                return user == null ? null : GetBlockUserDto(user);
+                var block = await _context.BlockUser.FindAsync(id);
+                return block == null ? null : GetBlockUserDto(block);
             }
             catch (Exception ex)
             {

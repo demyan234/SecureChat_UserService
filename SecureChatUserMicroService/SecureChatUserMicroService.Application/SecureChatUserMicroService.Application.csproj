@@ -24,7 +24,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\ContractualDtos\ContractualDtos.csproj" />
+      <ProjectReference Include="..\Dtos\Dtos.csproj" />
+      <ProjectReference Include="..\Protos\Protos.csproj" />
       <ProjectReference Include="..\SecureChatUserMicroService.Domain\SecureChatUserMicroService.Domain.csproj" />
     </ItemGroup>
 

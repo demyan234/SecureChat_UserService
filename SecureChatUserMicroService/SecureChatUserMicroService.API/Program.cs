@@ -1,38 +1,22 @@
-
+using Microsoft.OpenApi.Models;
 using SecureChatUserMicroService.Application.Application.Extensions;
+using SecureChatUserMicroService.Application.GrpcServices;
 using SecureChatUserMicroService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-/*TODO: вкл.на хостинге кэширование*/
-//builder.Services.AddResponseCaching();
-
 builder.Services
     .AddCollectionInfrastructure(builder.Configuration)
     .AddApplication();
-
-// Настройка CORS
-/*builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazorClient",
-        policyBuilder => policyBuilder
-            .WithOrigins(
-                ApiEndpointRoutes.BaseFrontUrl.TrimEnd('/')
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});*/
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "ChatMicroservice User API",
         Version = "v1",
         Description = "API для микросервиса чатов",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        Contact = new OpenApiContact
         {
             Name = "Demyan",
             Email = "demyan@mail.ru"
@@ -64,4 +48,13 @@ else
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
+
+#region MAP_GRPC
+
+app.MapGrpcService<UserGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<UserProfileGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<BlockUserGrpcService>().EnableGrpcWeb();
+
+#endregion
+
 app.Run();

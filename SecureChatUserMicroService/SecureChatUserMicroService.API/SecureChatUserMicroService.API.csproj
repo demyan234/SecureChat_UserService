@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Protos\Protos.csproj" />
       <ProjectReference Include="..\SecureChatUserMicroService.Application\SecureChatUserMicroService.Application.csproj" />
       <ProjectReference Include="..\SecureChatUserMicroService.Infrastructure\SecureChatUserMicroService.Infrastructure.csproj" />
     </ItemGroup>
