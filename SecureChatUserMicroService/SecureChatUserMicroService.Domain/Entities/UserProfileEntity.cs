@@ -71,7 +71,7 @@ namespace SecureChatUserMicroService.Domain.Entities
         public virtual ICollection<BlockUserEntity> BlockUsers { get; private set; }
     
         public void Update(string? name, string? nickname, string? avatarUrl, string? statusQuote, bool? isBlocked,
-            bool? isDeleted, Guid? status)
+            bool? isDeleted)
         {
             Name = name ?? Name;
             Nickname = nickname ?? Nickname;
@@ -79,7 +79,6 @@ namespace SecureChatUserMicroService.Domain.Entities
             StatusQuote = statusQuote ?? StatusQuote;
             IsBlocked = isBlocked ?? IsBlocked;
             IsDeleted = isDeleted ?? IsDeleted;
-            Status = status ?? Status;
         }
     }
 }

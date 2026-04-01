@@ -66,24 +66,14 @@ namespace SecureChatUserMicroService.Application.GrpcServices
                     };
                 }
 
-                var existingUser = await _userRepository.GetByEmail(request.Email);
-                if (existingUser)
-                {
-                    return new CreateUserResponse
-                    {
-                        Success = false,
-                        ErrorMessage = "This mail is already in the system."
-                    };
-                }
-
                 var createUserDto = new CreateUserRequestDto(request.Email, request.Name, request.Nickname,
-                    request.AvatarUrl, request.StatusQuote, UserStatusEnum.User.Id);
+                    request.AvatarUrl, request.StatusQuote);
                 var user = await _userRepository.Create(createUserDto);
 
                 return new CreateUserResponse
                 {
                     Success = true,
-                    UserId = user.ToString()
+                    Id = user.ToString()
                 };
             }
             catch (Exception ex)
@@ -101,7 +91,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
         /// </summary>
         public override async Task<GetUserResponse> GetUser(GetUserRequest request, ServerCallContext context)
         {
-            if (request.UserId == string.Empty)
+            if (request.Id == string.Empty)
             {
                 return new GetUserResponse
                 {
@@ -112,7 +102,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
 
             try
             {
-                var user = await _userRepository.Read(request.UserId.ToGuid());
+                var user = await _userRepository.Read(request.Id.ToGuid());
                 if (user == null)
                 {
                     return new GetUserResponse
@@ -147,7 +137,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             {
                 _ = await _userRepository.Update(new UpdateUserRequestDto(request.Id.ToGuid(),
                     request.Email, request.Name, request.Nickname, request.AvatarUrl, request.StatusQuote,
-                    request.IsBlocked, request.IsDeleted, request.Status.ToGuid()));
+                    request.IsBlocked, request.IsDeleted));
 
                 return new UpdateUserResponse
                 {
@@ -171,7 +161,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
         {
             try
             {
-                _ = await _userRepository.SafeDelete(request.UserId.ToGuid());
+                _ = await _userRepository.SafeDelete(request.Id.ToGuid());
 
                 return new DeleteUserResponse
                 {
@@ -212,11 +202,6 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             if (string.IsNullOrEmpty(request.AvatarUrl))
             {
                 return $"{nameof(request.AvatarUrl)} is null or empty";
-            }
-
-            if (string.IsNullOrEmpty(request.Status))
-            {
-                return $"{nameof(request.Status)} is null or empty";
             }
 
             return string.Empty;

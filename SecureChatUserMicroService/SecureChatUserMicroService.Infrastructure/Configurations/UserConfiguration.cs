@@ -18,17 +18,17 @@ namespace SecureChatUserMicroService.Infrastructure.Configurations
                 .HasMaxLength(150)
                 .HasComment("Почта");
 
-            builder.Property<Instant>(x => x.CreatedTime)
+            builder.Property(x => x.CreatedTime)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("CreatedTime")
                 .HasComment("Дата создания");
 
-            builder.Property<Instant>(x => x.LastUpdateTime)
+            builder.Property(x => x.LastUpdateTime)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("LastUpdateTime")
                 .HasComment("Дата обновления");
 
-            builder.Property<Instant?>(x => x.DeleteTime)
+            builder.Property(x => x.DeleteTime)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("DeleteTime")
                 .IsRequired(false)

@@ -1,16 +1,43 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
 
 option csharp_namespace = "UserService.Proto";
 
 // Сервис для управления пользователями
 service UserGrpcService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
-  rpc GetAllUser(GetAllUserRequest) returns (GetAllUserResponse) {}
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/grpc/User/CreateUser"
+      body: "*"
+    };
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/grpc/User/GetUser/{Id}"
+    };
+  }
+
+  rpc GetAllUser(GetAllUserRequest) returns (GetAllUserResponse) {
+    option (google.api.http) = {
+      get: "/grpc/User/GetAllUser"
+    };
+  }
+
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/grpc/User/UpdateUser/{Id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/grpc/User/DeleteUser/{Id}"
+    };
+  }
 }
 
 /*REQUEST*/
@@ -21,12 +48,11 @@ message CreateUserRequest {
   string Nickname = 3;
   string AvatarUrl = 4;
   optional string StatusQuote = 5;
-  string Status = 6;
 }
 
 // Получение пользователя
 message GetUserRequest {
-  string UserId = 1;
+  string Id = 1;
 }
 
 //Получение списка всех пользователей
@@ -41,26 +67,25 @@ message GetAllUserRequest {
 // Обновление пользователя
 message UpdateUserRequest {
   string Id = 1;
-  string Email = 2;
-  string Name = 3;
-  string Nickname = 4;
-  string AvatarUrl = 5;
+  optional string Email = 2;
+  optional string Name = 3;
+  optional string Nickname = 4;
+  optional string AvatarUrl = 5;
   optional string StatusQuote = 6;
-  bool IsBlocked = 7;
-  bool IsDeleted = 8;
-  optional string Status = 9;
+  optional bool IsBlocked = 7;
+  optional bool IsDeleted = 8;
 }
 
 // Удаление пользователя
 message DeleteUserRequest {
-  string UserId = 1;
+  string Id = 1;
 }
 
 /*RESPONSE*/
 // Ответ на создание пользователя
 message CreateUserResponse {
   bool Success = 1;
-  string UserId = 2;
+  string Id = 2;
   string ErrorMessage = 3;
 }
 

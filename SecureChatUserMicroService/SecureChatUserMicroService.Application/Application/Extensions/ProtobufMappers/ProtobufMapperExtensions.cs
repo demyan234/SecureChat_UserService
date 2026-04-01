@@ -22,9 +22,9 @@ public static class ProtobufMapperExtensions
         {
             Id = dto.Id.ToString(),
             Email = dto.Email,
-            CreatedTime = Timestamp.FromDateTime(dto.CreatedTime.ToDateTimeUtc()),
-            LastUpdateTime = Timestamp.FromDateTime(dto.LastUpdateTime.ToDateTimeUtc()),
-            DeleteTime = dto.DeleteTime?.ToDateTimeUtc().ToTimestamp()
+            CreatedTime = Timestamp.FromDateTime(dto.CreatedTime),
+            LastUpdateTime = Timestamp.FromDateTime(dto.LastUpdateTime),
+            DeleteTime = dto.DeleteTime?.ToTimestamp()
         };
     }
     

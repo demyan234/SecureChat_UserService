@@ -1,8 +1,11 @@
-﻿using ContractualDtos.DTO.Pagination;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using ContractualDtos.DTO.Pagination;
 using ContractualDtos.DTO.User;
 using ContractualDtos.DTO.User.CrudDto;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.Common.Interfaces;
 using SecureChatUserMicroService.Application.Common.Interfaces.IRepository;
 using SecureChatUserMicroService.Domain.Entities;
@@ -71,6 +74,13 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
         {
             try
             {
+                if (await _context.User.AnyAsync(u => u.Email == dto.Email) ||
+                    await _context.UserProfile.AnyAsync(u => u.Nickname == dto.Nickname)) 
+                {
+                    throw new Exception("Email or Nickname already exists");
+                }
+
+                IsValidEmail(dto.Email);
                 var newUser = new UserEntity(dto.Email, SystemClock.Instance.GetCurrentInstant(),
                     SystemClock.Instance.GetCurrentInstant(), null);
                 /*TODO: изменить AvatarUrl на дефолтный*/
@@ -120,8 +130,7 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
                 }
 
                 user.Update(dto.Email, SystemClock.Instance.GetCurrentInstant(), null);
-                userProfile.Update(dto.Name, dto.Nickname, dto.AvatarUrl, dto.StatusQuote, dto.IsBlocked, dto.IsDeleted,
-                    dto.Status);
+                userProfile.Update(dto.Name, dto.Nickname, dto.AvatarUrl, dto.StatusQuote, dto.IsBlocked, dto.IsDeleted);
 
                 _context.User.Update(user);
                 _context.UserProfile.Update(userProfile);
@@ -149,7 +158,7 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
                 }
 
                 user.Update(null, SystemClock.Instance.GetCurrentInstant(), SystemClock.Instance.GetCurrentInstant());
-                userProfile.Update(null, null, null, null, null, true, null);
+                userProfile.Update(null, null, null, null, null, true);
 
                 _context.User.Update(user);
                 _context.UserProfile.Update(userProfile);
@@ -184,9 +193,9 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
             return new UserDtos(
                 e.Id,
                 e.Email,
-                e.CreatedTime,
-                e.LastUpdateTime,
-                e.DeleteTime ?? null
+                e.CreatedTime.ToDateTimeUtc(),
+                e.LastUpdateTime.ToDateTimeUtc(),
+                e.DeleteTime?.ToDateTimeUtc() ?? null
             );
         }
 
@@ -198,10 +207,25 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
             return entities.Select(e => new UserDtos(
                 e.Id,
                 e.Email,
-                e.CreatedTime,
-                e.LastUpdateTime,
-                e.DeleteTime ?? null
+                e.CreatedTime.ToDateTimeUtc(),
+                e.LastUpdateTime.ToDateTimeUtc(),
+                e.DeleteTime?.ToDateTimeUtc() ?? null
             )).ToList();
+        }
+        
+        private void IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new Exception("Email is empty");
+
+            try
+            {
+                var mailAddress = new System.Net.Mail.MailAddress(email);
+            }
+            catch
+            {
+                throw new Exception("Incorrect email format");
+            }
         }
     }
 }

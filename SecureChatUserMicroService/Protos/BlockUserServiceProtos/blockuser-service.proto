@@ -32,9 +32,9 @@ message AddNewBlockUserRequest{
 // Запрос изменения определенной блокировки
 message UpdateBlockRequest{
   string Id = 1;
-  google.protobuf.Timestamp StartDate = 2;
-  google.protobuf.Timestamp EndDate = 3;
-  bool IsActive = 4;
+  optional google.protobuf.Timestamp StartDate = 2;
+  optional google.protobuf.Timestamp EndDate = 3;
+  optional bool IsActive = 4;
 }
 
 // Запрос деактивации определенной блокировки

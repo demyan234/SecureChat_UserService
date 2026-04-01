@@ -34,17 +34,17 @@ namespace SecureChatUserMicroService.Infrastructure.Configurations
                 .HasMaxLength(140)
                 .HasComment("Цитата(статус)");
 
-            builder.Property<bool>(x => x.IsBlocked)
+            builder.Property(x => x.IsBlocked)
                 .HasColumnName("IsBlocked")
                 .HasDefaultValue(false)
                 .HasComment("Признак блокировки");
 
-            builder.Property<bool>(x => x.IsDeleted)
+            builder.Property(x => x.IsDeleted)
                 .HasColumnName("IsDeleted")
                 .HasDefaultValue(false)
                 .HasComment("Признак удаления");
 
-            builder.Property<Guid>(x => x.Status)
+            builder.Property(x => x.Status)
                 .HasColumnName("Status")
                 .IsRequired()
                 .HasComment("Статус");

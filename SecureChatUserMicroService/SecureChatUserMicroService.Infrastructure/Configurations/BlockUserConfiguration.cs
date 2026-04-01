@@ -9,20 +9,20 @@ namespace SecureChatUserMicroService.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<BlockUserEntity> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("BlockUsers");
             builder.HasKey(x => x.Id);
 
-            builder.Property<bool>(x => x.IsActive)
+            builder.Property(x => x.IsActive)
                 .HasColumnName("IsActive")
                 .HasDefaultValue(true)
                 .HasComment("Активна ли блокировка");
             
-            builder.Property<Instant>(x => x.StartDate)
+            builder.Property(x => x.StartDate)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("StartDate")
                 .HasComment("Дата начала");
 
-            builder.Property<Instant>(x => x.EndDate)
+            builder.Property(x => x.EndDate)
                 .HasColumnType("timestamp with time zone")
                 .HasColumnName("EndDate")
                 .HasComment("Дата окончания");

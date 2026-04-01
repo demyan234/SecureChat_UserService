@@ -45,7 +45,8 @@ namespace SecureChatUserMicroService.Infrastructure
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Server=localhost;User Id=postgres;Password=0000;Port=5432;Database=postgres;", npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
+            optionsBuilder.UseNpgsql("Server=radiomgn.ru;User Id=nikita;Password=qwertyaib12345678;Port=4444;Database=chat;",
+                npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
         }
 
         private static DbContextOptions<T> ChangeOptionsType<T>(DbContextOptions options) where T : DbContext
