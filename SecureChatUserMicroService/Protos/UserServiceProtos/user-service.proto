@@ -1,126 +1,64 @@
 syntax = "proto3";
-
-import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
-
 option csharp_namespace = "UserService.Proto";
 
 // Сервис для управления пользователями
 service UserGrpcService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    option (google.api.http) = {
-      post: "/grpc/User/CreateUser"
-      body: "*"
-    };
-  }
+  // Создание пользователя (вызывается только Auth сервисом)
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
 
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
-    option (google.api.http) = {
-      get: "/grpc/User/GetUser/{Id}"
-    };
-  }
+  // Обновление профиля пользователя
+  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
 
-  rpc GetAllUser(GetAllUserRequest) returns (GetAllUserResponse) {
-    option (google.api.http) = {
-      get: "/grpc/User/GetAllUser"
-    };
-  }
+  // Получение профиля пользователя
+  rpc GetUser(GetUserRequest) returns (UserResponse);
 
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
-    option (google.api.http) = {
-      put: "/grpc/User/UpdateUser/{Id}"
-      body: "*"
-    };
-  }
+  // Получение нескольких пользователей (для чатов)
+  rpc GetUsers(GetUsersRequest) returns (UsersListResponse);
 
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
-    option (google.api.http) = {
-      delete: "/grpc/User/DeleteUser/{Id}"
-    };
-  }
+  // Удаление пользователя
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
 
-/*REQUEST*/
-// Запрос на создание пользователя
 message CreateUserRequest {
-  string Email = 1;
-  string Name = 2;
-  string Nickname = 3;
-  string AvatarUrl = 4;
-  optional string StatusQuote = 5;
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  string display_name = 4;
 }
 
-// Получение пользователя
-message GetUserRequest {
-  string Id = 1;
-}
-
-//Получение списка всех пользователей
-message GetAllUserRequest {
-  int32 Page = 1;
-  int32 pageSize = 2;
-  optional string Search = 3;
-  optional string SortBy = 4;
-  optional string SortDirection = 5;
-}
-
-// Обновление пользователя
 message UpdateUserRequest {
-  string Id = 1;
-  optional string Email = 2;
-  optional string Name = 3;
-  optional string Nickname = 4;
-  optional string AvatarUrl = 5;
-  optional string StatusQuote = 6;
-  optional bool IsBlocked = 7;
-  optional bool IsDeleted = 8;
+  string user_id = 1;
+  optional string email = 2;
+  optional string display_name = 3;
+  optional string avatar_url = 4;
+  optional string username = 5;
 }
 
-// Удаление пользователя
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message UserResponse {
+  string user_id = 1;
+  string username = 2;
+  string email = 3;
+  string display_name = 4;
+  string avatar_url = 5;
+  bool is_active = 6;
+}
+
+message UsersListResponse {
+  repeated UserResponse users = 1;
+  int32 total = 2;
+}
+
 message DeleteUserRequest {
-  string Id = 1;
+  string user_id = 1;
 }
-
-/*RESPONSE*/
-// Ответ на создание пользователя
-message CreateUserResponse {
-  bool Success = 1;
-  string Id = 2;
-  string ErrorMessage = 3;
-}
-
-// Вывод 1 пользователя
-message GetUserResponse {
-  bool Success = 1;
-  string ErrorMessage = 2;
-  UserInfo User = 3;
-}
-
-// Вывод всех пользователей
-message GetAllUserResponse {
-  bool Success = 1;
-  string ErrorMessage = 2;
-  repeated UserInfo Users = 3;
-  int32 Count = 4;
-}
-
-// Вывод измененного пользователя
-message UpdateUserResponse {
-  bool Success = 1;
-  string ErrorMessage = 2;
-}
-
-// Вывод удаленного пользователя
 message DeleteUserResponse {
-  bool Success = 1;
-  string ErrorMessage = 2;
-}
-
-//Информация о пользователях
-message UserInfo{
-  string Id = 1;
-  string Email = 2;
-  google.protobuf.Timestamp CreatedTime = 3;
-  google.protobuf.Timestamp LastUpdateTime = 4;
-  optional google.protobuf.Timestamp DeleteTime = 5;
+  bool success = 1;
 }

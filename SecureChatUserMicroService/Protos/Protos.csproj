@@ -23,7 +23,5 @@
 
     <ItemGroup>
         <Protobuf Include="UserServiceProtos\user-service.proto" GrpcServices="Both"/>
-        <Protobuf Include="UserProfileServiceProtos\userprofile-service.proto" GrpcServices="Both"/>
-        <Protobuf Include="BlockUserServiceProtos\blockuser-service.proto" GrpcServices="Both"/>
     </ItemGroup>
 </Project>

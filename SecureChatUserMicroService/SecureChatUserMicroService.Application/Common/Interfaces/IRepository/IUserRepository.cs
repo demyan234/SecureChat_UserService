@@ -1,50 +1,15 @@
 ﻿using ContractualDtos.DTO.Pagination;
 using ContractualDtos.DTO.User;
-using ContractualDtos.DTO.User.CrudDto;
+using ContractualDtos.DTO.User.CRUD;
 
 namespace SecureChatUserMicroService.Application.Common.Interfaces.IRepository
 {
     public interface IUserRepository
     {
-        /// <summary>
-        /// Вывод всех пользователей
-        /// </summary>
-        Task<PaginationDtoResponse<UserDtos>> GetAllAsync(
-            int page,
-            int pageSize,
-            string? search = null,
-            string? sortBy = null,
-            string? sortDirection = "Ascending");
-
-        /// <summary>
-        /// Добавление нового пользователя
-        /// </summary>
-        /// <param name="dto">передаваемые параметры из запроса</param>
-        Task<Guid> Create(CreateUserRequestDto dto);
-
-        /// <summary>
-        /// Вывод определенного пользователя
-        /// </summary>
-        /// <param name="id">передаваемые параметры из запроса</param>
-        Task<UserDtos?> Read(Guid id);
-
-        /// <summary>
-        /// Изменение определенного пользователя
-        /// </summary>
-        /// <param name="dto">передаваемые параметры из запроса</param>
-        Task<UserDtos?> Update(UpdateUserRequestDto dto);
-
-        /// <summary>
-        /// Деактивация определенного пользователя
-        /// </summary>
-        /// <param name="id">передаваемые параметры из запроса</param>
-        Task<bool> SafeDelete(Guid id);
-
-        /// <summary>
-        /// Проверка на существование пользователя с таким Email
-        /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        Task<bool> GetByEmail(string email);
+        Task<UserDtos> CreateUser(CreateUserRequest request);
+        Task<UserDtos> UpdateUser(UpdateUserRequest request);
+        Task<UserDtos> GetUser(Guid userId);
+        Task<PaginationDtoResponse<UserDtos>> GetUsers(List<Guid> userIds);
+        Task<bool> DeleteUser(Guid userId);
     }
 }

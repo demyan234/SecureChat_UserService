@@ -13,14 +13,15 @@ namespace SecureChatUserMicroService.Infrastructure
             : base(options)
         {
         }
-        
-        public DbSet<UserEntity> User { get; set; }
-        public DbSet<UserProfileEntity> UserProfile { get; set; }
-        public DbSet<BlockUserEntity> BlockUser { get; set; }
+
+        public DbSet<UsersEntity> Users{ get; set; }
 
         public void Migrate()
         {
-            Database.Migrate();
+            if (Database.IsRelational())
+            {
+                Database.EnsureCreated();
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,8 +31,7 @@ namespace SecureChatUserMicroService.Infrastructure
             #region user
 
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new UserProfileConfiguration());
-            modelBuilder.ApplyConfiguration(new BlockUserConfiguration());
+            modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
 
             #endregion
 
@@ -45,7 +45,9 @@ namespace SecureChatUserMicroService.Infrastructure
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Server=radiomgn.ru;User Id=nikita;Password=qwertyaib12345678;Port=4444;Database=chat;",
+            /*optionsBuilder.UseNpgsql("Server=radiomgn.ru;User Id=nikita;Password=qwertyaib12345678;Port=4444;Database=chat;",
+                npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();*/
+            optionsBuilder.UseNpgsql("Server=localhost;User Id=postgres2;Password=0000;Port=5432;Database=securechat_dev;",
                 npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
         }
 

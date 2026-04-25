@@ -1,11 +1,11 @@
-using NodaTime;
-
 namespace ContractualDtos.DTO.User
 {
     public record UserDtos(
-        Guid Id,
-        string Email,
-        DateTime CreatedTime,
-        DateTime LastUpdateTime,
-        DateTime? DeleteTime);
+        Guid UserId,
+        string UserName,
+        string UserEmail,
+        string UserNickname,
+        string UserAvatarUrl,
+        bool IsActive
+    );
 }

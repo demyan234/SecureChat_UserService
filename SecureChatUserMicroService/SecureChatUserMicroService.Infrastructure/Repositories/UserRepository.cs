@@ -1,11 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using ContractualDtos.DTO.Pagination;
+﻿using ContractualDtos.DTO.Pagination;
 using ContractualDtos.DTO.User;
-using ContractualDtos.DTO.User.CrudDto;
+using ContractualDtos.DTO.User.CRUD;
 using Microsoft.EntityFrameworkCore;
-using NodaTime;
-using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.Common.Interfaces;
 using SecureChatUserMicroService.Application.Common.Interfaces.IRepository;
 using SecureChatUserMicroService.Domain.Entities;
@@ -24,208 +20,98 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
 
         #region crud
 
-        public async Task<PaginationDtoResponse<UserDtos>> GetAllAsync(
-            int page,
-            int pageSize,
-            string? search = null,
-            string? sortBy = null,
-            string? sortDirection = "Ascending")
+        public async Task<UserDtos> CreateUser(CreateUserRequest request)
         {
-            try
+            if (await _context.Users.FirstOrDefaultAsync(un => un.Nickname == request.UserNickname) != null)
             {
-                var dbQuery = _context.User.AsNoTracking().AsQueryable();
-
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var searchLower = search.ToLower();
-                    dbQuery = dbQuery.Where(u =>
-                        u.Email.ToLower().Contains(searchLower));
-                }
-
-                dbQuery = sortBy?.ToLower() switch
-                {
-                    "email" => sortDirection == "Descending"
-                        ? dbQuery.OrderByDescending(u => u.Email)
-                        : dbQuery.OrderBy(u => u.Email),
-                    /*TODO: проверить*/
-                    "nickname" => sortDirection == "Descending"
-                        ? dbQuery.OrderByDescending(u => u.UserProfiles.OrderByDescending(x => x.Nickname))
-                        : dbQuery.OrderBy(u => u.UserProfiles.OrderBy(x => x.Nickname)),
-
-                    _ => dbQuery.OrderBy(u => u.Email)
-                };
-
-                var totalCount = await dbQuery.CountAsync();
-                var searchData = await dbQuery
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .AsNoTracking()
-                    .ToListAsync();
-
-                return new PaginationDtoResponse<UserDtos>(GetUserProfileDto(searchData), totalCount);
+                throw new Exception("UserNickname already exists");
             }
-            catch (Exception ex)
+
+            if (await _context.Users.FirstOrDefaultAsync(ue => ue.Email == request.UserEmail) != null)
             {
-                throw new Exception(ex.Message, ex);
+                throw new Exception("UserEmail already exists");
             }
+            
+            //TODO: добавить ссылку на дефолт аватар
+            var newUser = new UsersEntity(request.UserId,
+                request.UserEmail,
+                request.UserNickname,
+                request.UserName,
+                "",
+                UserRolesEnum.User.Id);
+            
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync(CancellationToken.None);
+
+            return GetUserDto(newUser);
         }
 
-        public async Task<Guid> Create(CreateUserRequestDto dto)
+        public async Task<UserDtos> UpdateUser(UpdateUserRequest request)
         {
-            try
-            {
-                if (await _context.User.AnyAsync(u => u.Email == dto.Email) ||
-                    await _context.UserProfile.AnyAsync(u => u.Nickname == dto.Nickname)) 
-                {
-                    throw new Exception("Email or Nickname already exists");
-                }
+            var user = await _context.Users.FirstOrDefaultAsync(un => un.Id == request.UserId) ??
+                       throw new ArgumentNullException(nameof(request.UserId));
+            user.Update(request.Email, request.Nickname, request.AvatarUrl, request.UserName);
+            
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync(CancellationToken.None);
 
-                IsValidEmail(dto.Email);
-                var newUser = new UserEntity(dto.Email, SystemClock.Instance.GetCurrentInstant(),
-                    SystemClock.Instance.GetCurrentInstant(), null);
-                /*TODO: изменить AvatarUrl на дефолтный*/
-                var newUserProfile = new UserProfileEntity(dto.Name, dto.Nickname, dto.AvatarUrl, dto.StatusQuote,
-                    false, false, UserStatusEnum.User.Id, newUser.Id);
-
-                _context.User.Add(newUser);
-                _context.UserProfile.Add(newUserProfile);
-                await SaveChanges();
-
-                return newUser.Id;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
+            return GetUserDto(user);
         }
 
-        public async Task<UserDtos?> Read(Guid id)
+        public async Task<UserDtos> GetUser(Guid userId)
         {
-            try
-            {
-                var user = await _context.User.FindAsync(id);
-                return user == null ? null : GetUserProfileDto(user);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
+            var user = await _context.Users.FirstOrDefaultAsync(un => un.Id == userId) ??
+                       throw new ArgumentNullException(nameof(userId));
+            return GetUserDto(user);
         }
 
-        public async Task<UserDtos?> Update(UpdateUserRequestDto dto)
+        public async Task<PaginationDtoResponse<UserDtos>> GetUsers(List<Guid> userIds)
         {
-            try
-            {
-                var user = await _context.User.FindAsync(dto.Id);
-                var userProfile = user?.UserProfiles.FirstOrDefault(x => x.Id == dto.Id);
-
-                if (user == null || userProfile == null) return null;
-                if (userProfile.Nickname != dto.Nickname)
-                {
-                    var checkNewNickname = await _context.UserProfile.AnyAsync(t => t.Nickname == dto.Nickname);
-                    if (checkNewNickname)
-                    {
-                        throw new Exception("Такой никнейм уже занят");
-                    }
-                }
-
-                user.Update(dto.Email, SystemClock.Instance.GetCurrentInstant(), null);
-                userProfile.Update(dto.Name, dto.Nickname, dto.AvatarUrl, dto.StatusQuote, dto.IsBlocked, dto.IsDeleted);
-
-                _context.User.Update(user);
-                _context.UserProfile.Update(userProfile);
-                await SaveChanges();
-
-                return GetUserProfileDto(user);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
+            var users = _context.Users.Where(un => userIds.Contains(un.Id)).ToList();
+            return new PaginationDtoResponse<UserDtos>(GetUserDto(users).ToList(), users.Count);
         }
 
-        public async Task<bool> SafeDelete(Guid id)
+        public async Task<bool> DeleteUser(Guid userId)
         {
-            try
-            {
-                var user = await _context.User.FindAsync([id]);
-                var userProfile = user?.UserProfiles.FirstOrDefault(x => x.Id == user.Id);
-
-                if (user == null || userProfile == null) return false;
-                if (userProfile is { IsDeleted: true })
-                {
-                    return true;
-                }
-
-                user.Update(null, SystemClock.Instance.GetCurrentInstant(), SystemClock.Instance.GetCurrentInstant());
-                userProfile.Update(null, null, null, null, null, true);
-
-                _context.User.Update(user);
-                _context.UserProfile.Update(userProfile);
-                await SaveChanges();
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
-        }
-
-        public Task<bool> GetByEmail(string email)
-        {
-            return _context.User.AnyAsync(u => u.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(un => un.Id == userId) ??
+                       throw new ArgumentNullException(nameof(userId));
+            
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync(CancellationToken.None);
+            
+            return true;
         }
 
         #endregion
 
-
-        private async Task SaveChanges()
-        {
-            await _context.SaveChangesAsync(CancellationToken.None);
-        }
-
         /// <summary>
         /// Формирование DTO для return
         /// </summary>
-        private static UserDtos GetUserProfileDto(UserEntity e)
+        private static UserDtos GetUserDto(UsersEntity e)
         {
             return new UserDtos(
                 e.Id,
+                e.Name,
                 e.Email,
-                e.CreatedTime.ToDateTimeUtc(),
-                e.LastUpdateTime.ToDateTimeUtc(),
-                e.DeleteTime?.ToDateTimeUtc() ?? null
+                e.Nickname,
+                e.AvatarUrl,
+                e.DeletedAt != null
             );
         }
 
         /// <summary>
         /// Формирование DTOs для return
         /// </summary>
-        private static List<UserDtos> GetUserProfileDto(List<UserEntity> entities)
+        private static List<UserDtos> GetUserDto(List<UsersEntity> entities)
         {
             return entities.Select(e => new UserDtos(
                 e.Id,
+                e.Name,
                 e.Email,
-                e.CreatedTime.ToDateTimeUtc(),
-                e.LastUpdateTime.ToDateTimeUtc(),
-                e.DeleteTime?.ToDateTimeUtc() ?? null
+                e.Nickname,
+                e.AvatarUrl,
+                e.DeletedAt != null
             )).ToList();
-        }
-        
-        private void IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new Exception("Email is empty");
-
-            try
-            {
-                var mailAddress = new System.Net.Mail.MailAddress(email);
-            }
-            catch
-            {
-                throw new Exception("Incorrect email format");
-            }
         }
     }
 }

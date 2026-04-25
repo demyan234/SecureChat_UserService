@@ -1,88 +1,32 @@
-using BlockUserService.Proto;
-using ContractualDtos.DTO.BlockUser;
 using ContractualDtos.DTO.Pagination;
 using ContractualDtos.DTO.User;
-using ContractualDtos.DTO.UserProfile;
-using Google.Protobuf.WellKnownTypes;
-using UserProfileService.Proto;
 using UserService.Proto;
 
-namespace SecureChatUserMicroService.Application.Application.Extensions.ProtobufMappers;
-
-public static class ProtobufMapperExtensions
+namespace SecureChatUserMicroService.Application.Application.Extensions.ProtobufMappers
 {
-    #region User
-
-    /// <summary>
-    /// Конвертация UserDtos в Proto UserInfo
-    /// </summary>
-    public static UserInfo ToProtoUserInfo(this UserDtos dto)
+    public static class ProtobufMapperExtensions
     {
-        return new UserInfo
+        #region UserProfile
+    
+        public static UserResponse ToProtoUserProfileInfo(this UserDtos dto)
         {
-            Id = dto.Id.ToString(),
-            Email = dto.Email,
-            CreatedTime = Timestamp.FromDateTime(dto.CreatedTime),
-            LastUpdateTime = Timestamp.FromDateTime(dto.LastUpdateTime),
-            DeleteTime = dto.DeleteTime?.ToTimestamp()
-        };
-    }
-    
-    public static List<UserInfo> ToProtoUserInfoList(
-        this PaginationDtoResponse<UserDtos> pagination)
-    {
-        return pagination.Items.Select(ToProtoUserInfo).ToList();
-    }
+            return new UserResponse
+            {
+                UserId = dto.UserId.ToString(),
+                Username = dto.UserName,
+                Email = dto.UserEmail,
+                DisplayName = dto.UserNickname,
+                AvatarUrl = dto.UserAvatarUrl,
+                IsActive = dto.IsActive
+            };
+        }
 
-    #endregion
-    
-    #region UserProfile
-    
-    public static UserProfileInfo ToProtoUserProfileInfo(this UserProfileDtos dto)
-    {
-        return new UserProfileInfo
+        public static List<UserResponse> ToProtoUserProfileInfoList(
+            this PaginationDtoResponse<UserDtos> pagination)
         {
-            Id = dto.Id.ToString(),
-            Name = dto.Name,
-            Nickname = dto.Nickname,
-            AvatarUrl = dto.AvatarUrl,
-            StatusQuote = dto.StatusQuote ?? string.Empty,
-            IsBlocked = dto.IsBlocked,
-            IsDeleted = dto.IsDeleted,
-            Status = dto.Status.ToString(),
-            UserId = dto.UserId.ToString()
-        };
-    }
-
-    public static List<UserProfileInfo> ToProtoUserProfileInfoList(
-        this PaginationDtoResponse<UserProfileDtos> pagination)
-    {
-        return pagination.Items.Select(ToProtoUserProfileInfo).ToList();
-    }
+            return pagination.Items.Select(ToProtoUserProfileInfo).ToList();
+        }
     
-    #endregion
-
-    #region BlockUser
-
-    /// <summary>
-    /// Конвертация BlockUserDtos в Proto BlockUserInfo
-    /// </summary>
-    public static BlockUserInfo ToProtoBlockUserInfo(this BlockUserDtos dto)
-    {
-        return new BlockUserInfo
-        {
-            Id = dto.Id.ToString(),
-            StartDate = Timestamp.FromDateTime(dto.StartDate.ToDateTimeUtc()),
-            EndDate = Timestamp.FromDateTime(dto.EndDate.ToDateTimeUtc()),
-            IsActive = dto.IsActive,
-            UserProfileId = dto.UserProfileId.ToString()
-        };
+        #endregion
     }
-    
-    public static List<BlockUserInfo> ToProtoBlockUserInfoList(this List<BlockUserDtos> dtos)
-    {
-        return dtos.Select(ToProtoBlockUserInfo).ToList();
-    }
-
-    #endregion
 }

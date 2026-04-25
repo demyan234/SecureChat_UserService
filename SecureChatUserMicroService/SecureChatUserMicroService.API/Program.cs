@@ -13,7 +13,6 @@ builder.Services.AddGrpc(options =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-
     options.ListenLocalhost(5555, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
@@ -66,9 +65,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Регистрация gRPC-сервисов
-app.MapGrpcService<UserGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<UserProfileGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<BlockUserGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<UsersGrpcService>().EnableGrpcWeb();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client...");
 
 app.Run();

@@ -28,8 +28,6 @@ namespace SecureChatUserMicroService.Infrastructure.Extensions
             //TODO: Репозитории
             services.AddScoped<IUserServiceDbContext, UserServiceDbContext>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
-            services.AddScoped<IBlockUserRepository, BlockUserRepository>();
 
             services.AddApplication();
 

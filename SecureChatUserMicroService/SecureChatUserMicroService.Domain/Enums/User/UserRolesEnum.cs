@@ -2,12 +2,12 @@
 
 namespace SecureChatUserMicroService.Domain.Enums.User
 {
-    public class UserStatusEnum : Enumeration
+    public class UserRolesEnum : Enumeration
     {
-        private UserStatusEnum(Guid id, string name) : base(id, name)
+        private UserRolesEnum(Guid id, string name) : base(id, name)
         { }
 
-        public static IEnumerable<UserStatusEnum> List()
+        public static IEnumerable<UserRolesEnum> List()
         {
             return
             [
@@ -19,7 +19,7 @@ namespace SecureChatUserMicroService.Domain.Enums.User
         /// <summary>
         /// Получение статуса пользователя по названию
         /// </summary>
-        public static UserStatusEnum FromName(string typeOfCourseFromName)
+        public static UserRolesEnum FromName(string typeOfCourseFromName)
         {
             var request = List()
                 .SingleOrDefault(s =>
@@ -37,7 +37,7 @@ namespace SecureChatUserMicroService.Domain.Enums.User
         /// <summary>
         /// Получение статуса пользователя по его Id
         /// </summary>
-        public static UserStatusEnum FromId(Guid fieldTypeId)
+        public static UserRolesEnum FromId(Guid fieldTypeId)
         {
             var request = List().SingleOrDefault(s => s.Id == fieldTypeId);
 
@@ -49,11 +49,11 @@ namespace SecureChatUserMicroService.Domain.Enums.User
             }
         }
     
-        public static readonly UserStatusEnum User = new(
+        public static readonly UserRolesEnum User = new(
             Guid.Parse("9a460a7b-600f-4662-a598-2e61cd64d171"),
             "Пользователь".ToLowerInvariant());
     
-        public static readonly UserStatusEnum Admin = new(
+        public static readonly UserRolesEnum Admin = new(
             Guid.Parse("48240e89-0d8d-4e4f-a6df-9776df45794c"),
             "Администратор".ToLowerInvariant());
     }
