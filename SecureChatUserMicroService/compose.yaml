@@ -1,0 +1,7 @@
+﻿services:
+  securechatusermicroservice.api:
+    image: securechatusermicroservice.api
+    build:
+      context: .
+      dockerfile: SecureChatUserMicroService.API/Dockerfile
+

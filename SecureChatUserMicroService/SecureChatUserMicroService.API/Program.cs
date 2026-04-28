@@ -3,25 +3,34 @@ using Microsoft.OpenApi.Models;
 using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.GrpcServices;
 using SecureChatUserMicroService.Infrastructure.Extensions;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddGrpc(options =>
-    {
-        options.EnableDetailedErrors = builder.Environment.IsDevelopment();
-    })
-    .AddJsonTranscoding();
+{
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+})
+.AddJsonTranscoding();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5555, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http2;
-    });
+    options.Listen(
+        IPAddress.Any,
+        5575,
+        listenOptions =>
+        {
+            listenOptions.Protocols = HttpProtocols.Http2;
+        });
 
-    options.ListenLocalhost(5143, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-    });
+    // HTTP endpoint — порт 4126 (для Swagger, Health, REST)
+    options.Listen(
+        IPAddress.Any,
+        4126,
+        listenOptions =>
+        {
+            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+        });
 });
 
 builder.Services
@@ -52,6 +61,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -63,6 +73,13 @@ if (app.Environment.IsDevelopment())
         options.EnableTryItOutByDefault();
     });
 }
+
+app.MapGet("/health", () => Results.Ok(new 
+{ 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    service = "ChatUserService"
+}));
 
 // Регистрация gRPC-сервисов
 app.MapGrpcService<UsersGrpcService>().EnableGrpcWeb();

@@ -95,7 +95,7 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
                 e.Email,
                 e.Nickname,
                 e.AvatarUrl,
-                e.DeletedAt != null
+                e.DeletedAt == null
             );
         }
 
@@ -110,7 +110,7 @@ namespace SecureChatUserMicroService.Infrastructure.Repositories
                 e.Email,
                 e.Nickname,
                 e.AvatarUrl,
-                e.DeletedAt != null
+                e.DeletedAt == null
             )).ToList();
         }
     }
