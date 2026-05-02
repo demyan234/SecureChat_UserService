@@ -1,6 +1,7 @@
 using Grpc.Core;
 using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.Application.Extensions.ProtobufMappers;
+using SecureChatUserMicroService.Application.Common.Interfaces.IGrpcClients;
 using SecureChatUserMicroService.Application.Common.Interfaces.IRepository;
 using UserService.Proto;
 
@@ -9,10 +10,13 @@ namespace SecureChatUserMicroService.Application.GrpcServices
     /// <summary>
     /// GRPC-Сервис для UserProfileEntity
     /// </summary>
-    public class UsersGrpcService(IUserRepository userRepository) : UserGrpcService.UserGrpcServiceBase
+    public class UsersGrpcService(IUserRepository userRepository, IChatGrpcClient chatGrpcServiceClient)
+        : UserGrpcService.UserGrpcServiceBase
     {
         private readonly IUserRepository _userRepository =
             userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        private readonly IChatGrpcClient _chatGrpcServiceClient =
+            chatGrpcServiceClient ?? throw new ArgumentNullException(nameof(chatGrpcServiceClient));
 
         /// <summary>
         /// Добавление нового пользователя
@@ -22,9 +26,9 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             try
             {
                 var newUser = await _userRepository.CreateUser(
-                    new ContractualDtos.DTO.User.CRUD.CreateUserRequest(request.UserId.ToGuid(), request.Username,
+                    new(request.UserId.ToGuid(), request.Username,
                         request.Email, request.DisplayName));
-                return new UserResponse
+                return new()
                 {
                     UserId = newUser.UserId.ToString(),
                     Username = newUser.UserName,
@@ -49,7 +53,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             {
                 var updateUser = await _userRepository.UpdateUser(new(request.UserId.ToGuid(), request.Email,
                     request.DisplayName, request.AvatarUrl, request.Username));
-                return new UserResponse
+                return new()
                 {
                     UserId = updateUser.UserId.ToString(),
                     Username = updateUser.UserName,
@@ -73,7 +77,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             try
             {
                 var user = await _userRepository.GetUser(request.UserId.ToGuid());
-                return new UserResponse
+                return new()
                 {
                     UserId = user.UserId.ToString(),
                     Username = user.UserName,
@@ -81,6 +85,24 @@ namespace SecureChatUserMicroService.Application.GrpcServices
                     DisplayName = user.UserNickname,
                     AvatarUrl = user.UserAvatarUrl,
                     IsActive = user.IsActive
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new(StatusCode.Aborted, ex.Message));
+            }
+        }
+
+        public override async Task<UsersListResponse> GetUsersFromSearch(GetUsersFromSearchRequest request,
+            ServerCallContext context)
+        {
+            try
+            {
+                var users = await _userRepository.GetUsers(request.SearchText);
+                return new()
+                {
+                    Users = { users.ToProtoUserProfileInfoList() },
+                    Total = users.TotalCount
                 };
             }
             catch (Exception ex)
@@ -98,7 +120,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             {
                 var userIds = request.UserIds.Select(id => id.ToGuid()).ToList();
                 var users = await _userRepository.GetUsers(userIds);
-                return new UsersListResponse
+                return new()
                 {
                     Users = { users.ToProtoUserProfileInfoList() },
                     Total = users.TotalCount
@@ -118,7 +140,7 @@ namespace SecureChatUserMicroService.Application.GrpcServices
             try
             {
                 var deleteUser = await _userRepository.DeleteUser(request.UserId.ToGuid());
-                return new DeleteUserResponse
+                return new()
                 {
                     Success = deleteUser
                 };

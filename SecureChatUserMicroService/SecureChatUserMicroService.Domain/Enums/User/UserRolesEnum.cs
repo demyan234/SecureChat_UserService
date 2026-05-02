@@ -45,7 +45,7 @@ namespace SecureChatUserMicroService.Domain.Enums.User
             {
                 var typeOfCourseIsExists = string.Join(",", List().Select(s => s.Id));
 
-                throw new Exception(typeOfCourseIsExists);
+                throw new(typeOfCourseIsExists);
             }
         }
     

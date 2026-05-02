@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+option csharp_namespace = "ChatService.Proto";
+
+// Grpc сервис чата
+service ChatGrpcService {
+  // Создание нового чата
+  rpc CreateChat(CreateChatRequest) returns (ChatResponse);
+
+  // Получение списка чатов пользователя
+  rpc GetUserChats(GetUserChatsRequest) returns (ChatsListResponse);
+
+  // Получение истории сообщений чата
+  rpc GetMessages(GetMessagesRequest) returns (MessagesListResponse);
+
+  // Получение информации о чате
+  rpc GetChatInfo(GetChatInfoRequest) returns (ChatResponse);
+
+  // отправка сообщения
+  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+
+  // добавление пользователя из сервиса Users
+  rpc AddUser(AddUserRequest) returns (AddUserResponse);
+  
+  // признак удаления пользователя из сервиса Users
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse);
+}
+
+message CreateChatRequest {
+  repeated string participant_ids = 1;
+  string created_by = 2;
+}
+
+message GetUserChatsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetMessagesRequest {
+  string chat_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetChatInfoRequest {
+  string chat_id = 1;
+}
+
+message SendMessageRequest {
+  string chat_id = 1;
+  string chat_participant_id = 2;
+  string answer_message_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp send_time = 5;
+}
+
+message AddUserRequest {
+  string user_id = 1;
+}
+
+message RemoveUserRequest {
+  string user_id = 1;
+}
+
+message ChatResponse {
+  string id = 1;
+  repeated string participant_ids = 2;
+  optional string last_message = 3;
+  optional google.protobuf.Timestamp last_message_at = 4;
+}
+
+message ChatsListResponse {
+  repeated ChatResponse chats = 1;
+  int32 total = 2;
+}
+
+message Message {
+  string id = 1;
+  string chat_id = 2;
+  string chat_participant_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message MessagesListResponse {
+  repeated Message messages = 1;
+  int32 total = 2;
+}
+
+message AddUserResponse {
+  bool success = 1;
+}
+
+message RemoveUserResponse {
+  bool success = 1;
+}

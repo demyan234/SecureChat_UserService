@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.OpenApi.Models;
 using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.GrpcServices;
 using SecureChatUserMicroService.Infrastructure.Extensions;
@@ -32,6 +31,22 @@ builder.WebHost.ConfigureKestrel(options =>
             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
         });
 });
+builder.Services.AddGrpcClient<ChatService.Proto.ChatGrpcService.ChatGrpcServiceClient>(options =>
+    {
+        var chatServiceUrl = builder.Environment.IsDevelopment()
+            ? "http://localhost:5576"
+            : builder.Configuration.GetValue<string>("Services:ChatService:Url");
+        options.Address = new(chatServiceUrl);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+        return handler;
+    });
 
 builder.Services
     .AddCollectionInfrastructure(builder.Configuration)
@@ -40,12 +55,12 @@ builder.Services
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    options.SwaggerDoc("v1", new()
     {
         Title = "ChatMicroservice Chat API",
         Version = "v1",
         Description = "gRPC-сервис чата",
-        Contact = new OpenApiContact
+        Contact = new()
         {
             Name = "Demyan",
             Email = "demyan@mail.ru"

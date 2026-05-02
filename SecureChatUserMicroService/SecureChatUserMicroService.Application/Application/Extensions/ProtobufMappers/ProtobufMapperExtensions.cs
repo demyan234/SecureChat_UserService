@@ -10,7 +10,7 @@ namespace SecureChatUserMicroService.Application.Application.Extensions.Protobuf
     
         public static UserResponse ToProtoUserProfileInfo(this UserDtos dto)
         {
-            return new UserResponse
+            return new()
             {
                 UserId = dto.UserId.ToString(),
                 Username = dto.UserName,

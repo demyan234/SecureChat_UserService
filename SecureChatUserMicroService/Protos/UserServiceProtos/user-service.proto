@@ -12,6 +12,9 @@ service UserGrpcService {
   // Получение профиля пользователя
   rpc GetUser(GetUserRequest) returns (UserResponse);
 
+  // Получение профиля пользователя
+  rpc GetUsersFromSearch(GetUsersFromSearchRequest) returns (UsersListResponse);
+
   // Получение нескольких пользователей (для чатов)
   rpc GetUsers(GetUsersRequest) returns (UsersListResponse);
 
@@ -36,6 +39,10 @@ message UpdateUserRequest {
 
 message GetUserRequest {
   string user_id = 1;
+}
+
+message GetUsersFromSearchRequest{
+  string search_text = 1;
 }
 
 message GetUsersRequest {

@@ -3,7 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SecureChatUserMicroService.Application.Application.Extensions;
 using SecureChatUserMicroService.Application.Common.Interfaces;
+using SecureChatUserMicroService.Application.Common.Interfaces.IGrpcClients;
 using SecureChatUserMicroService.Application.Common.Interfaces.IRepository;
+using SecureChatUserMicroService.Application.GrpcServices.Clients;
 using SecureChatUserMicroService.Infrastructure.Repositories;
 
 namespace SecureChatUserMicroService.Infrastructure.Extensions
@@ -22,12 +24,15 @@ namespace SecureChatUserMicroService.Infrastructure.Extensions
             services.AddScoped<UserServiceDbContext>(provider => provider.GetService<UserServiceDbContext>()
                                                                  ?? throw new InvalidOperationException());
 
-            //TODO: Регистрация  Mediator(-a)
+            //Регистрация  Mediator(-a)
             
             
-            //TODO: Репозитории
+            //Репозитории
             services.AddScoped<IUserServiceDbContext, UserServiceDbContext>();
             services.AddScoped<IUserRepository, UserRepository>();
+            
+            //Grpc Clients Interfaces
+            services.AddScoped<IChatGrpcClient, ChatGrpcClientService>();
 
             services.AddApplication();
 

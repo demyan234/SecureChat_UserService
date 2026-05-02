@@ -24,4 +24,8 @@
     <ItemGroup>
         <Protobuf Include="UserServiceProtos\user-service.proto" GrpcServices="Both"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="ChatServiceProtos\chat-service.proto" GrpcServices="Client"/>
+    </ItemGroup>
 </Project>
